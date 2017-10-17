@@ -18,7 +18,22 @@ namespace ProgressReporting.Services
             _cancellationTokenSource = new CancellationTokenSource();
         }
 
+        public Job(string id, string barid, string proDisplay, string cplDisplay, string startBtn)
+        {
+            Id = id;
+            _cancellationTokenSource = new CancellationTokenSource();
+            BarId = barid;
+            progressDisplay = proDisplay;
+            completeDisplay = cplDisplay;
+            startButton = startBtn;
+        }
+
         public string Id { get; private set; }
+
+        public string BarId { get; private set; }
+        public string progressDisplay { get; private set; }
+        public string completeDisplay { get; private set; }
+        public string startButton { get; private set; }
 
         public int Progress
         {

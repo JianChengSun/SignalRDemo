@@ -16,6 +16,11 @@ namespace ProgressReporting.Controllers
             return View();
         }
 
+        public ActionResult MultipleJob()
+        {
+            return View();
+        }
+
         public ActionResult GlobalJob()
         {
             var viewModel = new GlobalJobViewModel();
@@ -87,7 +92,7 @@ namespace ProgressReporting.Controllers
         }
 
         [HttpPost]
-        public ActionResult DoJob()
+        public ActionResult DoJob(string barid, string proDisplay, string cplDisplay, string startBtn)
         {
             var job = JobManager.Instance.DoJobAsync(j =>
             {
@@ -101,12 +106,16 @@ namespace ProgressReporting.Controllers
                     Thread.Sleep(200);
                     j.ReportProgress(progress);
                 }
-            });
+            },
+            barid,
+            proDisplay,
+            cplDisplay,
+            startBtn);
 
             return Json(new
             {
                 JobId = job.Id,
-                Progress = job.Progress
+                Progress = job.Progress,
             });
         }
     }

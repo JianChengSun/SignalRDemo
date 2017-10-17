@@ -24,14 +24,15 @@ namespace ProgressReporting.Hubs
             }
         }
 
-        public void ProgressChanged(string jobId, int progress)
+        public void ProgressChanged(string jobId, int progress, string BarId)
         {
-            Clients.Group(jobId).progressChanged(jobId, progress);
+            Clients.Group(jobId).progressChanged(jobId, progress, BarId);
+
         }
 
-        public void JobCompleted(string jobId)
+        public void JobCompleted(string jobId, string proDisplay, string cplDisplay, string startBtn)
         {
-            Clients.Group(jobId).jobCompleted(jobId);
+            Clients.Group(jobId).jobCompleted(jobId, proDisplay, cplDisplay, startBtn);
         }
     }
 }

@@ -40,6 +40,25 @@ namespace ProgressReporting.Services
             return job;
         }
 
+        public Job DoJobAsync(Action<Job> action, string barid, string proDisplay, string cplDisplay, string startBtn)
+        {
+            var job = new Job(Guid.NewGuid().ToString(), barid, proDisplay, cplDisplay, startBtn);
+
+            // this will (should!) never fail, because job.Id is globally unique
+            _runningJobs.TryAdd(job.Id, job);
+            Task.Factory.StartNew(() =>
+            {
+                action(job);
+                job.ReportComplete();
+                _runningJobs.TryRemove(job.Id, out job);
+            },
+            TaskCreationOptions.LongRunning);
+
+            BroadcastJobStatus(job);
+
+            return job;
+        }
+
         private void BroadcastJobStatus(Job job)
         {
             job.ProgressChanged += HandleJobProgressChanged;
@@ -48,9 +67,9 @@ namespace ProgressReporting.Services
 
         private void HandleJobCompleted(object sender, EventArgs e)
         {
-            var job = (Job) sender;
+            var job = (Job)sender;
 
-            _hubContext.Clients.Group(job.Id).jobCompleted(job.Id);
+            _hubContext.Clients.Group(job.Id).jobCompleted(job.Id, job.progressDisplay, job.completeDisplay, job.startButton);
 
             job.ProgressChanged -= HandleJobProgressChanged;
             job.Completed -= HandleJobCompleted;
@@ -58,8 +77,8 @@ namespace ProgressReporting.Services
 
         private void HandleJobProgressChanged(object sender, EventArgs e)
         {
-            var job = (Job) sender;
-            _hubContext.Clients.Group(job.Id).progressChanged(job.Id, job.Progress);
+            var job = (Job)sender;
+            _hubContext.Clients.Group(job.Id).progressChanged(job.Id, job.Progress, job.BarId);
         }
 
         public Job GetJob(string id)
